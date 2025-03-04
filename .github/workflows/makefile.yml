@@ -21,11 +21,7 @@ jobs:
         echo -e "${HUGGINGFACE_TOKEN}\nY\n" | huggingface-cli login
 
     - name: Run README commands
-      run: |
-        python -m venv .venv
-        source .venv/bin/activate
-        pip install -e ".[core,dev]"
-        accelerate launch -m llmart model=llama3-8b-instruct data=basic loss=model model.device=cpu
+      run: make
 
     - name: Run all examples and cleanup
       run: make -C examples/
