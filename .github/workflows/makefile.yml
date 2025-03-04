@@ -1,0 +1,31 @@
+name: LLMart Test Runner
+
+on:
+  push:
+    branches: [ "adarsh/gh-runner" ] # TODO: Change this to main after testing
+  pull_request:
+    branches: [ "adarsh/gh-runner" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      HUGGINGFACE_TOKEN: ${{ secrets.HUGGINGFACE_TOKEN }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install huggingface_hub and login
+      run: |
+        pip install huggingface_hub
+        echo -e "${HUGGINGFACE_TOKEN}\nY\n" | huggingface-cli login
+
+    - name: Run README commands
+      run: |
+        python -m venv .venv
+        source .venv/bin/activate
+        pip install -e ".[core,dev]"
+        accelerate launch -m llmart model=llama3-8b-instruct data=basic loss=model model.device=cpu
+
+    - name: Run all examples and cleanup
+      run: make -C examples/
